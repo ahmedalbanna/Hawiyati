@@ -1,20 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { LayoutGrid, UserPlus, ShieldCheck, Search, Activity, Menu, X, Globe } from "lucide-react";
+import { LayoutGrid, UserPlus, ShieldCheck, Search, Activity, Menu, X, Globe, Users } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { IdentityCard } from "./domains/identity/IdentityCard";
 import { EnrollmentForm } from "./domains/identity/EnrollmentForm";
 import { VoiceVerificationPortal } from "./domains/identity/VoiceVerificationPortal";
+import { FamilyLinker } from "./domains/identity/FamilyLinker";
 import { cn } from "./lib/utils";
 
 export default function App() {
   const [citizens, setCitizens] = useState<any[]>([]);
-  const [view, setView] = useState<"dashboard" | "enroll" | "verify">("dashboard");
+  const [view, setView] = useState<"dashboard" | "enroll" | "verify" | "family">("dashboard");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  useEffect(() => {
-     fetch("/api/citizens")
+  const fetchCitizens = () => {
+    fetch("/api/citizens")
        .then(res => res.json())
        .then(data => setCitizens(data));
+  };
+
+  useEffect(() => {
+     fetchCitizens();
   }, []);
 
   const handleEnrollmentComplete = async (data: any) => {
@@ -49,12 +54,13 @@ export default function App() {
               { id: "dashboard", label: "السجل", icon: LayoutGrid },
               { id: "enroll", label: "تسجيل", icon: UserPlus },
               { id: "verify", label: "تحقق", icon: Search },
+              { id: "family", label: "العائلة", icon: Users },
             ].map((item) => (
               <button
                 key={item.id}
                 onClick={() => setView(item.id as any)}
                 className={cn(
-                  "flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-medium transition-all",
+                  "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all focus:outline-none",
                   view === item.id ? "bg-white/10 text-white shadow-xl" : "text-white/40 hover:text-white/70"
                 )}
               >
@@ -104,7 +110,7 @@ export default function App() {
 
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {citizens.map((citizen) => (
-                      <IdentityCard key={citizen.id} citizen={citizen} />
+                      <IdentityCard key={citizen.id} citizen={citizen} citizens={citizens} />
                     ))}
                     
                     {/* Add Placeholder Card */}
@@ -144,6 +150,20 @@ export default function App() {
               >
                   <VoiceVerificationPortal citizens={citizens} />
               </motion.div>
+            )}
+
+            {view === "family" && (
+               <motion.div
+                 key="family"
+                 initial={{ opacity: 0, y: 10 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 exit={{ opacity: 0, y: -10 }}
+               >
+                  <FamilyLinker citizens={citizens} onLink={() => {
+                    fetchCitizens();
+                    setView("dashboard");
+                  }} />
+               </motion.div>
             )}
          </AnimatePresence>
       </main>

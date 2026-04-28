@@ -21,6 +21,7 @@ async function startServer() {
       origin: "تعز، شرعب السلام",
       voiceHash: "v_sig_classic_882",
       createdAt: new Date().toISOString(),
+      familyId: "FAM-YE-001"
     },
     {
       id: "YE-450-210",
@@ -29,6 +30,7 @@ async function startServer() {
       origin: "صنعاء، الأمانة",
       voiceHash: "v_sig_classic_450",
       createdAt: new Date().toISOString(),
+      familyId: "FAM-YE-001"
     }
   ];
 
@@ -44,13 +46,23 @@ async function startServer() {
     // Simulate Deep Analysis
     await new Promise(r => setTimeout(r, 2000));
 
-    // For demo purposes, we accept any recording as a match for the target
     res.json({ 
       success: true, 
       matchScore: 0.96 + Math.random() * 0.03, 
       method: "Spectral Matching",
       timestamp: new Date().toISOString()
     });
+  });
+
+  app.post("/api/citizens/link", (req, res) => {
+    const { citizenId, familyId } = req.body;
+    const citizen = citizens.find(c => c.id === citizenId);
+    if (citizen) {
+      citizen.familyId = familyId;
+      res.json({ success: true, citizen });
+    } else {
+      res.status(404).json({ success: false });
+    }
   });
 
   app.get("/api/citizens", (req, res) => {

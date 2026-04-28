@@ -1,7 +1,8 @@
 import { QRCodeSVG } from "qrcode.react";
-import { ShieldCheck, User, MapPin, Calendar, Volume2 } from "lucide-react";
+import { ShieldCheck, User, MapPin, Calendar, Volume2, Link as LinkIcon } from "lucide-react";
 import { motion } from "motion/react";
 import { cn } from "../../lib/utils";
+import { FamilySection } from "./FamilySection";
 
 interface IdentityProps {
   citizen: {
@@ -11,11 +12,17 @@ interface IdentityProps {
     origin: string;
     voiceHash: string;
     photoUrl?: string;
+    familyId?: string;
   };
+  citizens?: any[];
   className?: string;
 }
 
-export const IdentityCard = ({ citizen, className }: IdentityProps) => {
+export const IdentityCard = ({ citizen, citizens = [], className }: IdentityProps) => {
+  const familyMembers = citizen.familyId 
+    ? citizens.filter(c => c.familyId === citizen.familyId)
+    : [];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -79,6 +86,9 @@ export const IdentityCard = ({ citizen, className }: IdentityProps) => {
           </div>
         </div>
       </div>
+
+      {/* Family Section */}
+      <FamilySection members={familyMembers} currentId={citizen.id} />
 
       {/* Footer / QR & Voice */}
       <div className="mt-8 flex items-end justify-between border-t border-white/5 pt-6">
