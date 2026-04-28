@@ -4,16 +4,19 @@ import { motion, AnimatePresence } from "motion/react";
 import confetti from "canvas-confetti";
 import { cn } from "../../lib/utils";
 import { VoiceRecorder } from "./VoiceRecorder";
+import { CameraCapture } from "./CameraCapture";
 
 export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showRecorder, setShowRecorder] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     origin: "",
     birthDate: "",
     voiceHash: "",
+    photoUrl: "",
     hasPhoto: false
   });
 
@@ -89,7 +92,7 @@ export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void
           </motion.div>
         )}
 
-        {step === 2 && !showRecorder && (
+        {step === 2 && !showRecorder && !showCamera && (
           <motion.div
             key="step2"
             initial={{ opacity: 0, x: 20 }}
@@ -105,14 +108,19 @@ export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Photo Card */}
               <div 
-                onClick={() => setFormData({...formData, hasPhoto: true})}
+                onClick={() => setShowCamera(true)}
                 className={cn(
                   "group relative cursor-pointer overflow-hidden rounded-3xl border p-8 transition-all h-64 flex flex-col items-center justify-center gap-4",
                   formData.hasPhoto ? "border-emerald-500 bg-emerald-500/10" : "border-white/10 bg-white/5 hover:border-[#D4AF37]/50"
                 )}
               >
                 {formData.hasPhoto ? (
-                   <CheckCircle className="h-16 w-16 text-emerald-500" />
+                   <div className="relative h-24 w-24 overflow-hidden rounded-2xl border-2 border-emerald-500">
+                      <img src={formData.photoUrl} alt="Preview" className="h-full w-full object-cover" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                         <CheckCircle className="h-8 w-8 text-white" />
+                      </div>
+                   </div>
                 ) : (
                    <Camera className="h-16 w-16 text-white/20 group-hover:text-[#D4AF37] transition-colors" />
                 )}
@@ -180,6 +188,16 @@ export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void
                setTimeout(() => setShowRecorder(false), 2000);
              }} />
            </motion.div>
+        )}
+
+        {showCamera && (
+           <CameraCapture 
+             onCapture={(url) => {
+               setFormData({...formData, photoUrl: url, hasPhoto: true});
+               setShowCamera(false);
+             }} 
+             onCancel={() => setShowCamera(false)} 
+           />
         )}
       </AnimatePresence>
     </div>
