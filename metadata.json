@@ -1,0 +1,6 @@
+{
+  "name": "Hawiyati - هويتي",
+  "description": "السجل المدني الرقمي السيادي لليمن - هوية مؤمنة بالصوت والصورة لكل مواطن.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["Digital Identity", "Voice Biometrics", "Offline Registry"]
+}

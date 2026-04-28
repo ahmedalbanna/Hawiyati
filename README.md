@@ -1,11 +1,26 @@
-<div align="center">
+# Hawiyati - هويتي (Digital Civil Registry)
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+## Bounded Contexts (Domains)
 
-  <h1>Built with AI Studio</h2>
+1. **/domains/identity**
+   - **Back:** `server/identityController.ts`, `models/Citizen.ts`
+   - **Front:** `components/IdentityCard.tsx`, `pages/Enrollment.tsx`
+   - **Purpose:** Core identity management (Face/Voice).
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+2. **/domains/family**
+   - **Back:** `models/Family.ts`
+   - **Front:** `components/FamilyLink.tsx`
+   - **Purpose:** Linking citizens into family units.
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+3. **/domains/verification**
+   - **Front:** `pages/VerifyIdentity.tsx`
+   - **Purpose:** QR scanning and public verification portal.
 
-</div>
+4. **/domains/core**
+   - **Shared:** `components/layout/`, `utils/voiceProcessing.ts`, `theme/`
+
+## Tech Stack
+- **Frontend:** React + Vite + TailwindCSS + Motion.
+- **Backend:** Express (Module-based API).
+- **Security:** RSA-encrypted QR data & Voice Hashing simulations.
+- **AI:** Gemini Flash for "Voice-to-Data" extraction simulation.
