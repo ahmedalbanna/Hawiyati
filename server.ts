@@ -19,16 +19,38 @@ async function startServer() {
       name: "علي أحمد صالح",
       birthDate: "1985-05-12",
       origin: "تعز، شرعب السلام",
-      voiceHash: "v_secure_01",
+      voiceHash: "v_sig_classic_882",
       createdAt: new Date().toISOString(),
-      familyId: "FAM-001"
+    },
+    {
+      id: "YE-450-210",
+      name: "أروى محمد القاسمي",
+      birthDate: "1992-11-20",
+      origin: "صنعاء، الأمانة",
+      voiceHash: "v_sig_classic_450",
+      createdAt: new Date().toISOString(),
     }
   ];
 
-  // AI API Route (Simulated logic or Gemini Proxy)
+  // AI API Route (Simulated logic for Voice Biometrics)
   app.post("/api/ai/verify-voice", async (req, res) => {
-    // Logic for processing voice would go here
-    res.json({ success: true, matchScore: 0.98 });
+    const { citizenId, voiceHash } = req.body;
+    const citizen = citizens.find(c => c.id === citizenId);
+
+    if (!citizen) {
+       return res.status(404).json({ success: false, message: "Citizen not found" });
+    }
+
+    // Simulate Deep Analysis
+    await new Promise(r => setTimeout(r, 2000));
+
+    // For demo purposes, we accept any recording as a match for the target
+    res.json({ 
+      success: true, 
+      matchScore: 0.96 + Math.random() * 0.03, 
+      method: "Spectral Matching",
+      timestamp: new Date().toISOString()
+    });
   });
 
   app.get("/api/citizens", (req, res) => {

@@ -1,17 +1,19 @@
 import React, { useState } from "react";
-import { Mic, Camera, ArrowRight, Loader2, CheckCircle, Shield } from "lucide-react";
+import { Mic, Camera, ArrowRight, Loader2, CheckCircle, Shield, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import confetti from "canvas-confetti";
 import { cn } from "../../lib/utils";
+import { VoiceRecorder } from "./VoiceRecorder";
 
 export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [showRecorder, setShowRecorder] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     origin: "",
     birthDate: "",
-    hasVoice: false,
+    voiceHash: "",
     hasPhoto: false
   });
 
@@ -52,7 +54,7 @@ export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void
                 <input
                   type="text"
                   placeholder="أدخل الاسم الرباعي..."
-                  className="w-full rounded-2xl bg-white/5 border border-white/10 p-4 text-white focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50"
+                  className="w-full rounded-2xl bg-white/5 border border-white/10 p-4 text-white focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 placeholder:text-white/10"
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
@@ -62,7 +64,7 @@ export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void
                   <input
                     type="text"
                     placeholder="المحافظة - المديرية"
-                    className="w-full rounded-2xl bg-white/5 border border-white/10 p-4 text-white focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50"
+                    className="w-full rounded-2xl bg-white/5 border border-white/10 p-4 text-white focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 placeholder:text-white/10"
                     onChange={(e) => setFormData({ ...formData, origin: e.target.value })}
                   />
                 </div>
@@ -87,7 +89,7 @@ export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void
           </motion.div>
         )}
 
-        {step === 2 && (
+        {step === 2 && !showRecorder && (
           <motion.div
             key="step2"
             initial={{ opacity: 0, x: 20 }}
@@ -122,13 +124,13 @@ export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void
 
               {/* Voice Card */}
               <div 
-                onClick={() => setFormData({...formData, hasVoice: true})}
+                onClick={() => setShowRecorder(true)}
                 className={cn(
                   "group relative cursor-pointer overflow-hidden rounded-3xl border p-8 transition-all h-64 flex flex-col items-center justify-center gap-4",
-                  formData.hasVoice ? "border-emerald-500 bg-emerald-500/10" : "border-white/10 bg-white/5 hover:border-[#D4AF37]/50"
+                  formData.voiceHash ? "border-emerald-500 bg-emerald-500/10" : "border-white/10 bg-white/5 hover:border-[#D4AF37]/50"
                 )}
               >
-                {formData.hasVoice ? (
+                {formData.voiceHash ? (
                    <CheckCircle className="h-16 w-16 text-emerald-500" />
                 ) : (
                    <Mic className="h-16 w-16 text-white/20 group-hover:text-[#D4AF37] transition-colors" />
@@ -141,7 +143,7 @@ export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void
             </div>
 
             <button
-              disabled={!formData.hasPhoto || !formData.hasVoice || loading}
+              disabled={!formData.hasPhoto || !formData.voiceHash || loading}
               onClick={simulateProcessing}
               className="group relative flex w-full items-center justify-center gap-3 rounded-2xl bg-white p-5 text-black font-bold text-lg disabled:opacity-30 disabled:cursor-not-allowed"
             >
@@ -156,7 +158,31 @@ export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void
             </button>
           </motion.div>
         )}
+
+        {showRecorder && (
+           <motion.div
+             key="voice-recorder"
+             initial={{ opacity: 0, scale: 0.95 }}
+             animate={{ opacity: 1, scale: 1 }}
+             exit={{ opacity: 0, scale: 0.95 }}
+             className="glass-morphism relative rounded-3xl p-12 text-center"
+           >
+             <button 
+               onClick={() => setShowRecorder(false)}
+               className="absolute right-6 top-6 rounded-full bg-white/5 p-2 hover:bg-white/10"
+             >
+               <X className="h-5 w-5" />
+             </button>
+             <h3 className="text-2xl font-bold mb-2">تخزين البصمة الصوتية</h3>
+             <p className="text-white/40 mb-12">يرجى نطق اسمك بوضوح لمدة 3 ثوانٍ.</p>
+             <VoiceRecorder onCapture={(hash) => {
+               setFormData({...formData, voiceHash: hash});
+               setTimeout(() => setShowRecorder(false), 2000);
+             }} />
+           </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );
 };
+

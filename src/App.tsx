@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { LayoutGrid, UserPlus, ShieldCheck, Search, Activity, Menu, X } from "lucide-react";
+import { LayoutGrid, UserPlus, ShieldCheck, Search, Activity, Menu, X, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { IdentityCard } from "./domains/identity/IdentityCard";
 import { EnrollmentForm } from "./domains/identity/EnrollmentForm";
+import { VoiceVerificationPortal } from "./domains/identity/VoiceVerificationPortal";
 import { cn } from "./lib/utils";
 
 export default function App() {
@@ -63,6 +64,11 @@ export default function App() {
             ))}
           </div>
 
+          <div className="hidden md:flex items-center gap-4">
+             <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+             <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">Node: Sana'a Central</span>
+          </div>
+
           <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X /> : <Menu />}
           </button>
@@ -86,12 +92,12 @@ export default function App() {
                     </div>
                     <div className="flex gap-4">
                        <div className="flex flex-col items-center bg-white/5 px-6 py-3 rounded-2xl border border-white/10">
-                          <span className="text-2xl font-display font-bold text-[#D4AF37]">{citizens.length}</span>
+                          <span className="text-2xl font-display font-bold text-[#D4AF37] font-mono">{citizens.length}</span>
                           <span className="text-[10px] text-white/30 uppercase tracking-widest">مواطن مسجل</span>
                        </div>
                        <div className="flex flex-col items-center bg-white/5 px-6 py-3 rounded-2xl border border-white/10">
-                          <span className="text-2xl font-display font-bold text-emerald-500">100%</span>
-                          <span className="text-[10px] text-white/30 uppercase tracking-widest">تشفير سيادي</span>
+                          <Globe className="h-6 w-6 text-emerald-500 mb-1" />
+                          <span className="text-[10px] text-white/30 uppercase tracking-widest">تزامن نشط</span>
                        </div>
                     </div>
                  </div>
@@ -135,26 +141,28 @@ export default function App() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="flex flex-col items-center justify-center min-h-[60vh] text-center"
               >
-                  <div className="h-24 w-24 rounded-3xl bg-[#D4AF37]/10 flex items-center justify-center mb-6">
-                     <Search className="h-10 w-10 text-[#D4AF37]" />
-                  </div>
-                  <h2 className="text-3xl font-display font-bold mb-4">بوابة التحقق / Public Verification</h2>
-                  <p className="text-white/40 max-w-md mx-auto mb-8">
-                    هذه البوابة مخصصة للمستشفيات، المدارس، ونقاط الإغاثة للتحقق من الهوية الرقمية عبر مسح رمز الـ QR.
-                  </p>
-                  <button className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold hover:bg-white/10 transition-all">
-                    فتح الماسح الضوئي / Open Scanner
-                  </button>
+                  <VoiceVerificationPortal citizens={citizens} />
               </motion.div>
             )}
          </AnimatePresence>
       </main>
+
+      {/* Footer Branding */}
+      <footer className="border-t border-white/5 py-12 mt-12 bg-black/20">
+         <div className="mx-auto max-w-7xl px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div className="flex items-center gap-3 opacity-50">
+               <ShieldCheck className="h-5 w-5" />
+               <p className="text-xs tracking-widest uppercase">Hawiyati Sovereign Protocol v1.2</p>
+            </div>
+            <p className="text-xs text-white/20">© 2026 هويتي - السجل المدني الرقمي اليمني</p>
+         </div>
+      </footer>
 
       {/* Decorative Gradient Beam */}
       <div className="pointer-events-none fixed bottom-0 left-1/2 h-[500px] w-full -translate-x-1/2 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.05),transparent_70%)] blur-3xl" />
     </div>
   );
 }
+
 
