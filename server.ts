@@ -70,6 +70,21 @@ async function startServer() {
   });
 
   app.post("/api/citizens", (req, res) => {
+    const { name, birthDate, origin } = req.body;
+    
+    // Conflict Resolution Strategy: Deduplication
+    // Check if a citizen with the same identifiers already exists
+    const duplicate = citizens.find(c => 
+      c.name === name && 
+      c.birthDate === birthDate && 
+      c.origin === origin
+    );
+
+    if (duplicate) {
+      console.log(`[Sync Conflict] Duplicate enrollment detected for ${name}. Merging data.`);
+      return res.status(200).json(duplicate); // Return existing instead of creating new
+    }
+
     const newCitizen = {
       ...req.body,
       id: `YE-${Math.floor(100+Math.random()*900)}-${Math.floor(100+Math.random()*900)}`,

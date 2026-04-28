@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { LayoutGrid, UserPlus, ShieldCheck, Search, Activity, Menu, X, Globe, Users } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { IdentityCard } from "./domains/identity/IdentityCard";
 import { EnrollmentForm } from "./domains/identity/EnrollmentForm";
 import { VoiceVerificationPortal } from "./domains/identity/VoiceVerificationPortal";
 import { FamilyLinker } from "./domains/identity/FamilyLinker";
+import { SyncStatusIndicator, useSyncManager } from "./domains/core/sync/SyncManager";
 import { cn } from "./lib/utils";
 
 export default function App() {
@@ -12,24 +13,22 @@ export default function App() {
   const [view, setView] = useState<"dashboard" | "enroll" | "verify" | "family">("dashboard");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const fetchCitizens = () => {
+  const fetchCitizens = useCallback(() => {
     fetch("/api/citizens")
        .then(res => res.json())
        .then(data => setCitizens(data));
-  };
+  }, []);
+
+  const { isOnline, queue, isSyncing, addToQueue } = useSyncManager(fetchCitizens);
 
   useEffect(() => {
      fetchCitizens();
-  }, []);
+  }, [fetchCitizens]);
 
-  const handleEnrollmentComplete = async (data: any) => {
-    const response = await fetch("/api/citizens", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    const newCitizen = await response.json();
-    setCitizens([newCitizen, ...citizens]);
+  const handleEnrollmentComplete = (data: any) => {
+    // Add to sync queue - works offline and online
+    addToQueue(data);
+    // Optimistic UI or just feedback
     setTimeout(() => setView("dashboard"), 2500);
   };
 
@@ -48,8 +47,11 @@ export default function App() {
              </div>
           </div>
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-2xl border border-white/10">
+          <div className="hidden lg:flex items-center gap-6">
+             <SyncStatusIndicator isOnline={isOnline} queueLength={queue.length} isSyncing={isSyncing} />
+             
+             {/* Desktop Nav */}
+             <div className="flex items-center gap-1 bg-white/5 p-1 rounded-2xl border border-white/10">
             {[
               { id: "dashboard", label: "السجل", icon: LayoutGrid },
               { id: "enroll", label: "تسجيل", icon: UserPlus },
@@ -69,8 +71,9 @@ export default function App() {
               </button>
             ))}
           </div>
+        </div>
 
-          <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-4">
              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
              <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">Node: Sana'a Central</span>
           </div>
