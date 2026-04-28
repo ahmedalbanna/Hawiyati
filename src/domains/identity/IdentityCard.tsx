@@ -1,5 +1,5 @@
 import { QRCodeSVG } from "qrcode.react";
-import { ShieldCheck, User, MapPin, Calendar, Volume2, Link as LinkIcon } from "lucide-react";
+import { ShieldCheck, User, MapPin, Calendar, Volume2, Link as LinkIcon, Fingerprint } from "lucide-react";
 import { motion } from "motion/react";
 import { cn } from "../../lib/utils";
 import { FamilySection } from "./FamilySection";
@@ -96,6 +96,10 @@ export const IdentityCard = ({ citizen, citizens = [], className }: IdentityProp
           <div className="flex flex-col items-center gap-1 rounded-xl bg-white/5 p-2 px-3 border border-white/10">
             <Volume2 className="h-5 w-5 text-[#D4AF37]" />
             <span className="text-[8px] text-white/40 font-mono">VOICE SIGN</span>
+          </div>
+          <div className="flex flex-col items-center gap-1 rounded-xl bg-white/5 p-2 px-3 border border-white/10">
+            <Fingerprint className="h-5 w-5 text-[#D4AF37]" />
+            <span className="text-[8px] text-white/40 font-mono">BIOMETRIC</span>
           </div>
           <div className="h-8 w-px bg-white/5" />
           <p className="text-[9px] leading-relaxed text-white/40 max-w-[120px]">

@@ -1,23 +1,27 @@
 import React, { useState } from "react";
-import { Mic, Camera, ArrowRight, Loader2, CheckCircle, Shield, X } from "lucide-react";
+import { Mic, Camera, ArrowRight, Loader2, CheckCircle, Shield, X, Fingerprint } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import confetti from "canvas-confetti";
 import { cn } from "../../lib/utils";
 import { VoiceRecorder } from "./VoiceRecorder";
 import { CameraCapture } from "./CameraCapture";
+import { FingerprintScanner } from "./FingerprintScanner";
 
 export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showRecorder, setShowRecorder] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
+  const [showFingerprint, setShowFingerprint] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     origin: "",
     birthDate: "",
     voiceHash: "",
     photoUrl: "",
-    hasPhoto: false
+    fingerprintHash: "",
+    hasPhoto: false,
+    hasFingerprint: false
   });
 
   const nextStep = () => setStep((s) => s + 1);
@@ -92,7 +96,7 @@ export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void
           </motion.div>
         )}
 
-        {step === 2 && !showRecorder && !showCamera && (
+        {step === 2 && !showRecorder && !showCamera && !showFingerprint && (
           <motion.div
             key="step2"
             initial={{ opacity: 0, x: 20 }}
@@ -102,31 +106,31 @@ export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void
           >
             <div className="space-y-4">
                <h2 className="text-3xl font-display font-bold gold-gradient-text">القياسات الحيوية / Biometrics</h2>
-               <p className="text-white/40">صوتك وصورتك هما بصمة وجودك.</p>
+               <p className="text-white/40">تكامل القياسات يضمن سيادة هويتك.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Photo Card */}
               <div 
                 onClick={() => setShowCamera(true)}
                 className={cn(
-                  "group relative cursor-pointer overflow-hidden rounded-3xl border p-8 transition-all h-64 flex flex-col items-center justify-center gap-4",
+                  "group relative cursor-pointer overflow-hidden rounded-3xl border p-6 transition-all h-56 flex flex-col items-center justify-center gap-4",
                   formData.hasPhoto ? "border-emerald-500 bg-emerald-500/10" : "border-white/10 bg-white/5 hover:border-[#D4AF37]/50"
                 )}
               >
                 {formData.hasPhoto ? (
-                   <div className="relative h-24 w-24 overflow-hidden rounded-2xl border-2 border-emerald-500">
+                   <div className="relative h-20 w-20 overflow-hidden rounded-2xl border-2 border-emerald-500">
                       <img src={formData.photoUrl} alt="Preview" className="h-full w-full object-cover" />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                         <CheckCircle className="h-8 w-8 text-white" />
+                         <CheckCircle className="h-6 w-6 text-white" />
                       </div>
                    </div>
                 ) : (
-                   <Camera className="h-16 w-16 text-white/20 group-hover:text-[#D4AF37] transition-colors" />
+                   <Camera className="h-12 w-12 text-white/20 group-hover:text-[#D4AF37] transition-colors" />
                 )}
-                <div>
-                  <h3 className="font-bold text-lg">التقاط صورة</h3>
-                  <p className="text-xs text-white/40 mt-1">Capture Face Photo</p>
+                <div className="text-center">
+                  <h3 className="font-bold text-base">الصورة الشخصية</h3>
+                  <p className="text-[10px] text-white/40 mt-1 uppercase tracking-tighter">Face ID</p>
                 </div>
               </div>
 
@@ -134,33 +138,58 @@ export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void
               <div 
                 onClick={() => setShowRecorder(true)}
                 className={cn(
-                  "group relative cursor-pointer overflow-hidden rounded-3xl border p-8 transition-all h-64 flex flex-col items-center justify-center gap-4",
+                  "group relative cursor-pointer overflow-hidden rounded-3xl border p-6 transition-all h-56 flex flex-col items-center justify-center gap-4",
                   formData.voiceHash ? "border-emerald-500 bg-emerald-500/10" : "border-white/10 bg-white/5 hover:border-[#D4AF37]/50"
                 )}
               >
                 {formData.voiceHash ? (
-                   <CheckCircle className="h-16 w-16 text-emerald-500" />
+                   <div className="flex flex-col items-center gap-2">
+                     <CheckCircle className="h-12 w-12 text-emerald-500" />
+                     <span className="text-[10px] font-mono text-emerald-500/60">{formData.voiceHash}</span>
+                   </div>
                 ) : (
-                   <Mic className="h-16 w-16 text-white/20 group-hover:text-[#D4AF37] transition-colors" />
+                   <Mic className="h-12 w-12 text-white/20 group-hover:text-[#D4AF37] transition-colors" />
                 )}
-                <div>
-                  <h3 className="font-bold text-lg">بصمة الصوت</h3>
-                  <p className="text-xs text-white/40 mt-1">Record Voice Signature</p>
+                <div className="text-center">
+                  <h3 className="font-bold text-base">بصمة الصوت</h3>
+                  <p className="text-[10px] text-white/40 mt-1 uppercase tracking-tighter">Voice Signature</p>
+                </div>
+              </div>
+
+              {/* Fingerprint Card */}
+              <div 
+                onClick={() => setShowFingerprint(true)}
+                className={cn(
+                  "group relative cursor-pointer overflow-hidden rounded-3xl border p-6 transition-all h-56 flex flex-col items-center justify-center gap-4",
+                  formData.hasFingerprint ? "border-emerald-500 bg-emerald-500/10" : "border-white/10 bg-white/5 hover:border-[#D4AF37]/50"
+                )}
+              >
+                {formData.hasFingerprint ? (
+                   <div className="flex flex-col items-center gap-2">
+                      <Fingerprint className="h-12 w-12 text-emerald-500" />
+                      <span className="text-[10px] font-mono text-emerald-500/60">Biometric Set</span>
+                   </div>
+                ) : (
+                   <Fingerprint className="h-12 w-12 text-white/20 group-hover:text-[#D4AF37] transition-colors" />
+                )}
+                <div className="text-center">
+                  <h3 className="font-bold text-base">بصمة الإصبع</h3>
+                  <p className="text-[10px] text-white/40 mt-1 uppercase tracking-tighter">Fingerprint</p>
                 </div>
               </div>
             </div>
 
             <button
-              disabled={!formData.hasPhoto || !formData.voiceHash || loading}
+              disabled={!formData.hasPhoto || !formData.voiceHash || !formData.hasFingerprint || loading}
               onClick={simulateProcessing}
-              className="group relative flex w-full items-center justify-center gap-3 rounded-2xl bg-white p-5 text-black font-bold text-lg disabled:opacity-30 disabled:cursor-not-allowed"
+              className="group relative flex w-full items-center justify-center gap-3 rounded-2xl bg-white p-5 text-black font-bold text-lg disabled:opacity-30 disabled:cursor-not-allowed shadow-xl shadow-white/5"
             >
               {loading ? (
                 <Loader2 className="h-6 w-6 animate-spin" />
               ) : (
                 <>
                   <Shield className="h-5 w-5" />
-                  إصدار الهوية الرقمية
+                  إصدار الهوية الوطنية
                 </>
               )}
             </button>
@@ -197,6 +226,16 @@ export const EnrollmentForm = ({ onComplete }: { onComplete: (data: any) => void
                setShowCamera(false);
              }} 
              onCancel={() => setShowCamera(false)} 
+           />
+        )}
+
+        {showFingerprint && (
+           <FingerprintScanner
+             onCapture={(hash) => {
+               setFormData({...formData, fingerprintHash: hash, hasFingerprint: true});
+               setTimeout(() => setShowFingerprint(false), 2000);
+             }}
+             onCancel={() => setShowFingerprint(false)}
            />
         )}
       </AnimatePresence>
